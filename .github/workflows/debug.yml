@@ -1,0 +1,20 @@
+name: Debug payload
+on:
+  workflow_run:
+    workflows:
+      - Health
+    types:
+      - completed
+permissions: {}
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump workflow_run payload
+        run: |
+          echo "event=${{ github.event.workflow_run.event }}"
+          echo "head_sha=${{ github.event.workflow_run.head_sha }}"
+          echo "head_branch=${{ github.event.workflow_run.head_branch }}"
+          echo "head_repo=${{ github.event.workflow_run.head_repository.full_name }}"
+          echo "run_id=${{ github.event.workflow_run.id }}"
+          echo "prs=${{ toJSON(github.event.workflow_run.pull_requests) }}"
