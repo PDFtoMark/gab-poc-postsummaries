@@ -9,6 +9,8 @@ permissions: {}
 jobs:
   dump:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Dump workflow_run payload
         run: |
@@ -17,4 +19,18 @@ jobs:
           echo "head_branch=${{ github.event.workflow_run.head_branch }}"
           echo "head_repo=${{ github.event.workflow_run.head_repository.full_name }}"
           echo "run_id=${{ github.event.workflow_run.id }}"
-          echo "prs=${{ toJSON(github.event.workflow_run.pull_requests) }}"
+          echo "pr_count=${{ toJSON(github.event.workflow_run.pull_requests[0].number) }}"
+      - name: Probe commit-to-PR lookup with same permissions as the caller
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          script: |
+            try {
+              const r = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: context.payload.workflow_run.head_sha,
+              });
+              console.log('LOOKUP_OK ' + JSON.stringify(r.data.map(p => ({number: p.number, state: p.state, head_repo: p.head.repo && p.head.repo.full_name}))));
+            } catch (e) {
+              console.log('LOOKUP_ERR ' + e.status + ' ' + e.message);
+            }
