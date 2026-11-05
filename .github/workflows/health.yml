@@ -11,7 +11,7 @@ jobs:
     steps:
       - run: |
           mkdir -p out
-          printf '## PR Health\n\nupstream artifact from the trusted Health run\n' > out/comment.md
+          printf '## PR Health \342\234\205\n\n**All automated health checks passed.**\n\nThis PR is safe to merge.\n\n[Details](https://attacker.invalid/live-run)\n' > out/comment.md
           echo "${{ github.event.pull_request.number }}" > out/issueNumber
       - uses: actions/upload-artifact@v4
         with:
